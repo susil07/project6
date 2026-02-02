@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyA9i6u20a5USHQFp3k_OL7nVW1qWtvgLq0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>84363133113</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.speedychow.speedyChow</string>
+	<key>PROJECT_ID</key>
+	<string>tastygo-food-delive</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tastygo-food-delive.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:84363133113:ios:b35afe80ffcca55313db68</string>
+</dict>
+</plist>

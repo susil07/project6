@@ -1,0 +1,8 @@
+Analyzing speedy_chow...                                        
+
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/pages/auth/auth_controller.dart:34:37 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/pages/auth/auth_controller.dart:46:37 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/pages/auth/auth_page.dart:49:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/presentation/pages/welcome/welcome_page.dart:51:42 • deprecated_member_use
+
+4 issues found. (ran in 1.6s)
