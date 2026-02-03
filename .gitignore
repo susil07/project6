@@ -49,6 +49,6 @@ app.*.map.json
 firebase-debug.log*
 firebase-options.dart
 lib/firebase_options.dart
-android/app/google-services.json
-ios/Runner/GoogleService-Info.plist
+# android/app/google-services.json
+# ios/Runner/GoogleService-Info.plist
 ios/firebase_app_id_file.json
