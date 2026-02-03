@@ -16,10 +16,7 @@ jobs:
           channel: 'stable'
           cache: true
       - run: mkdir -p lib
-      - run: |
-          cat <<EOF > lib/firebase_options.dart
-          ${{ secrets.FIREBASE_OPTIONS_DART }}
-          EOF
+      - run: echo "${{ secrets.FIREBASE_OPTIONS_DART_BASE64 }}" | base64 -d > lib/firebase_options.dart
       - run: flutter pub get
       - run: flutter build web --release
       - uses: FirebaseExtended/action-hosting-deploy@v0
