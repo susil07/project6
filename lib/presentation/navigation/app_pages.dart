@@ -39,6 +39,8 @@ import 'package:tasty_go/presentation/pages/profile/user_profile_page.dart';
 import 'package:tasty_go/presentation/pages/profile/user_profile_binding.dart';
 import 'package:tasty_go/presentation/pages/favorites/favorites_page.dart';
 import 'package:tasty_go/presentation/pages/favorites/favorites_binding.dart';
+import 'package:tasty_go/presentation/pages/location/location_permission_page.dart';
+import 'package:tasty_go/presentation/pages/profile/address/address_management_page.dart';
 import 'package:tasty_go/presentation/navigation/app_routes.dart';
 
 class AppPages {
@@ -156,6 +158,14 @@ class AppPages {
       name: Routes.favorites,
       page: () => const FavoritesPage(),
       binding: FavoritesBinding(),
+    ),
+    GetPage(
+      name: Routes.locationPermission,
+      page: () => const LocationPermissionPage(),
+    ),
+    GetPage(
+      name: Routes.addresses,
+      page: () => const AddressManagementPage(),
     ),
   ];
 }

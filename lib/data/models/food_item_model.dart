@@ -24,10 +24,14 @@ class FoodItemModel {
   // Convert from Firestore document
   factory FoodItemModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    String rawPrice = data['price']?.toString() ?? '';
+    // Clean price: remove 'N', '₦', and commas to get a clean number string
+    String cleanPrice = rawPrice.replaceAll(RegExp(r'[N₦,]'), '').trim();
+    
     return FoodItemModel(
       id: doc.id,
       name: data['name'] ?? '',
-      price: data['price'] ?? '',
+      price: cleanPrice,
       imageUrl: data['imageUrl'] ?? '',
       category: data['category'] ?? '',
       description: data['description'] ?? '',
@@ -38,10 +42,13 @@ class FoodItemModel {
 
   // Convert from JSON
   factory FoodItemModel.fromJson(Map<String, dynamic> json) {
+    String rawPrice = json['price']?.toString() ?? '';
+    String cleanPrice = rawPrice.replaceAll(RegExp(r'[N₦,]'), '').trim();
+    
     return FoodItemModel(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
-      price: json['price'] ?? '',
+      price: cleanPrice,
       imageUrl: json['imageUrl'] ?? '',
       category: json['category'] ?? '',
       description: json['description'] ?? '',

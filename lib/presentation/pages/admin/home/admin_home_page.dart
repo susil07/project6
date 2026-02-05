@@ -106,6 +106,12 @@ class AdminHomePage extends GetView<AdminHomeController> {
                   icon: Icons.receipt_long,
                   onTap: () => Get.toNamed('/admin/orders'),
                 ),
+                _buildActionButton(
+                  theme,
+                  label: 'Setup Restaurant',
+                  icon: Icons.store,
+                  onTap: () => controller.seedRestaurantData(),
+                ),
               ],
             ),
             

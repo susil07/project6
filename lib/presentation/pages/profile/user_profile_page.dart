@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tasty_go/presentation/pages/profile/user_profile_controller.dart';
 import 'package:tasty_go/presentation/pages/home/home_controller.dart';
+import 'package:tasty_go/presentation/pages/settings/settings_page.dart';
 
 class UserProfilePage extends GetView<UserProfileController> {
   const UserProfilePage({super.key});
@@ -90,7 +91,7 @@ class UserProfilePage extends GetView<UserProfileController> {
               theme,
               icon: Icons.location_on_outlined,
               title: 'Delivery Addresses',
-              onTap: () {},
+              onTap: () => Get.toNamed('/addresses'),
             ),
             _buildMenuTile(
               theme,
@@ -102,21 +103,17 @@ class UserProfilePage extends GetView<UserProfileController> {
               theme,
               icon: Icons.settings_outlined,
               title: 'Settings',
-              onTap: () {},
+              onTap: () => Get.to(() => const SettingsPage()),
             ),
             SizedBox(height: 32.h),
             
-            ElevatedButton.icon(
-              onPressed: () => _showLogoutDialog(context),
-              icon: const Icon(Icons.logout),
-              label: const Text('Logout'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.errorContainer,
-                foregroundColor: theme.colorScheme.error,
-                minimumSize: Size(double.infinity, 50.h),
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-              ),
+            _buildMenuTile(
+              theme,
+              icon: Icons.logout,
+              title: 'Log Out',
+              onTap: () => _showLogoutDialog(context),
+              titleColor: theme.colorScheme.error,
+              iconColor: theme.colorScheme.error,
             ),
           ],
         ),

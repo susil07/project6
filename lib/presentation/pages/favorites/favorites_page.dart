@@ -159,7 +159,7 @@ class FavoritesPage extends GetView<FavoritesController> {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    item.price,
+                    '₹${item.price}',
                     style: TextStyle(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,

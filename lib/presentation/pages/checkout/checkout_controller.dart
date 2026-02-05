@@ -1,90 +1,74 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tasty_go/data/models/order_model.dart';
+import 'package:tasty_go/data/models/address_model.dart';
 import 'package:tasty_go/data/services/order_service.dart';
+import 'package:tasty_go/data/services/address_service.dart';
 import 'package:tasty_go/presentation/controllers/cart_controller.dart';
 
 class CheckoutController extends GetxController {
   final OrderService _orderService = OrderService();
+  final AddressService _addressService = AddressService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CartController cartController = Get.find<CartController>();
 
-  // Form controllers
-  final fullNameController = TextEditingController();
-  final phoneController = TextEditingController();
-  final addressLine1Controller = TextEditingController();
-  final addressLine2Controller = TextEditingController();
-  final cityController = TextEditingController();
-  final pincodeController = TextEditingController();
+  // Addresses
+  var addresses = <AddressModel>[].obs;
+  var selectedAddress = Rxn<AddressModel>();
+  var isLoadingAddresses = true.obs;
 
   // Payment method
   var selectedPaymentMethod = 'cod'.obs; // 'cod' or 'online'
-
   var isPlacingOrder = false.obs;
 
   @override
-  void onClose() {
-    fullNameController.dispose();
-    phoneController.dispose();
-    addressLine1Controller.dispose();
-    addressLine2Controller.dispose();
-    cityController.dispose();
-    pincodeController.dispose();
-    super.onClose();
+  void onInit() {
+    super.onInit();
+    _loadAddresses();
   }
 
-  bool validateForm() {
-    if (fullNameController.text.trim().isEmpty) {
-      Get.snackbar('Error', 'Please enter full name');
-      return false;
+  void _loadAddresses() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      // Bind stream to addresses list
+      addresses.bindStream(_addressService.getAddressesStream(user.uid));
+      
+      // Listen to addresses to auto-select default
+      ever(addresses, (List<AddressModel> list) {
+        isLoadingAddresses.value = false;
+        if (selectedAddress.value == null && list.isNotEmpty) {
+          // Select default or first
+          final defaultAddr = list.firstWhereOrNull((a) => a.isDefault);
+          selectedAddress.value = defaultAddr ?? list.first;
+        }
+      });
     }
-    if (phoneController.text.trim().isEmpty || phoneController.text.length < 10) {
-      Get.snackbar('Error', 'Please enter valid phone number');
-      return false;
-    }
-    if (addressLine1Controller.text.trim().isEmpty) {
-      Get.snackbar('Error', 'Please enter address');
-      return false;
-    }
-    if (cityController.text.trim().isEmpty) {
-      Get.snackbar('Error', 'Please enter city');
-      return false;
-    }
-    if (pincodeController.text.trim().isEmpty || pincodeController.text.length != 6) {
-      Get.snackbar('Error', 'Please enter valid pincode');
-      return false;
-    }
-    return true;
   }
 
   Future<void> placeOrder() async {
-    if (!validateForm()) return;
-
     if (cartController.cartItems.isEmpty) {
       Get.snackbar('Error', 'Your cart is empty');
       return;
     }
 
+    if (selectedAddress.value == null) {
+      Get.snackbar('Error', 'Please select a delivery address');
+      return;
+    }
+
     try {
       isPlacingOrder.value = true;
-
       final user = _auth.currentUser;
+      
       if (user == null) {
         Get.snackbar('Error', 'Please login to place order');
         return;
       }
 
-      // Build delivery address string
-      final deliveryAddress = [
-        fullNameController.text.trim(),
-        phoneController.text.trim(),
-        addressLine1Controller.text.trim(),
-        if (addressLine2Controller.text.trim().isNotEmpty) addressLine2Controller.text.trim(),
-        cityController.text.trim(),
-        pincodeController.text.trim(),
-      ].join(', ');
-
+      final addr = selectedAddress.value!;
+      
       // Convert cart items to order items
       final orderItems = cartController.cartItems.map((cartItem) {
         return OrderItem(
@@ -96,12 +80,22 @@ class CheckoutController extends GetxController {
         );
       }).toList();
 
+      // Fetch restaurant settings
+      final restaurantDoc = await FirebaseFirestore.instance.collection('settings').doc('restaurant').get();
+      final restaurantData = restaurantDoc.data();
+
       // Create order
       final order = FoodOrder(
         id: '', // Will be set by Firestore
         userId: user.uid,
         items: orderItems,
-        deliveryAddress: deliveryAddress,
+        deliveryAddress: '${addr.fullAddress}, ${addr.city} - ${addr.pincode}, Ph: ${addr.phone}',
+        deliveryLatitude: addr.latitude != 0.0 ? addr.latitude : null,
+        deliveryLongitude: addr.longitude != 0.0 ? addr.longitude : null,
+        restaurantLatitude: (restaurantData?['latitude'] as num?)?.toDouble() ?? 17.448293, // Default Madhapur
+        restaurantLongitude: (restaurantData?['longitude'] as num?)?.toDouble() ?? 78.392485,
+        restaurantName: restaurantData?['name'] as String? ?? 'Tasty Go - Madhapur',
+        restaurantAddress: restaurantData?['address'] as String? ?? 'Madhapur, Hyderabad',
         paymentMethod: selectedPaymentMethod.value == 'cod' ? 'Cash on Delivery' : 'Online Payment',
         subtotal: cartController.subtotal,
         tax: cartController.tax,

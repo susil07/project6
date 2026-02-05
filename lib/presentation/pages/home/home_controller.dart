@@ -2,6 +2,9 @@ import 'package:get/get.dart';
 import 'package:tasty_go/data/models/food_item_model.dart';
 import 'package:tasty_go/data/repositories/food_repository.dart';
 import 'package:tasty_go/data/services/firestore_seeder.dart';
+import 'package:tasty_go/data/services/address_service.dart';
+import 'package:tasty_go/data/models/address_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeController extends GetxController {
   final RxInt selectedBottomIndex = 0.obs;
@@ -14,11 +17,30 @@ class HomeController extends GetxController {
   final List<String> categories = ['Foods', 'Drinks', 'Snacks', 'Sauces'];
   final FoodRepository _foodRepository = FoodRepository();
   final FirestoreSeeder _seeder = FirestoreSeeder();
+  final AddressService _addressService = AddressService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final Rxn<AddressModel> currentAddress = Rxn<AddressModel>();
 
   @override
   void onInit() {
     super.onInit();
     _listenToFoodItems();
+    _listenToAddress();
+  }
+
+  void _listenToAddress() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      _addressService.getAddressesStream(user.uid).listen((addresses) {
+        if (addresses.isNotEmpty) {
+          // Find default or first
+          currentAddress.value = addresses.firstWhereOrNull((a) => a.isDefault) ?? addresses.first;
+        } else {
+          currentAddress.value = null;
+        }
+      });
+    }
   }
 
   // Listen to Firestore real-time updates

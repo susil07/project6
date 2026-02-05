@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tasty_go/data/models/order_model.dart';
 import 'package:tasty_go/data/services/delivery_service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:tasty_go/data/services/location_service.dart';
 
 class DeliveryHomeController extends GetxController {
   final DeliveryService _deliveryService = DeliveryService();
@@ -19,7 +20,6 @@ class DeliveryHomeController extends GetxController {
   
   StreamSubscription? _assignedSub;
   StreamSubscription? _availableSub;
-  StreamSubscription? _locationSub;
 
   @override
   void onInit() {
@@ -31,7 +31,7 @@ class DeliveryHomeController extends GetxController {
   void onClose() {
     _assignedSub?.cancel();
     _availableSub?.cancel();
-    _locationSub?.cancel();
+    LocationService.stopTracking(); // Ensure tracking stops when closed
     super.onClose();
   }
 
@@ -47,12 +47,12 @@ class DeliveryHomeController extends GetxController {
         assignedOrders.value = orders;
         isLoading.value = false;
         
-        // If any order is out_for_delivery, start location stream
+        // If any order is out_for_delivery, start background location service
         final hasActiveDelivery = orders.any((o) => o.status == 'out_for_delivery');
         if (hasActiveDelivery && !isLocationStreaming.value) {
-          _startLocationStreaming();
+          _startLocationTracking(user.uid);
         } else if (!hasActiveDelivery && isLocationStreaming.value) {
-          _stopLocationStreaming();
+          _stopLocationTracking();
         }
       },
       onError: (e) {
@@ -74,7 +74,6 @@ class DeliveryHomeController extends GetxController {
       },
       onError: (e) {
         print('🔴 [DELIVERY_HOME] Available orders error: $e');
-        // If index is missing, available orders also won't load
       },
     );
   }
@@ -100,12 +99,15 @@ class DeliveryHomeController extends GetxController {
     }
   }
 
-  void _startLocationStreaming() async {
+  void _startLocationTracking(String partnerId) async {
     bool serviceEnabled;
     LocationPermission permission;
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    if (!serviceEnabled) {
+      Get.snackbar('Location Disabled', 'Please enable location services');
+      return;
+    }
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -113,26 +115,23 @@ class DeliveryHomeController extends GetxController {
       if (permission == LocationPermission.denied) return;
     }
 
+    if (permission == LocationPermission.deniedForever) {
+      Get.snackbar('Permission Denied', 'Location permission is permanently denied. Please enable it in settings.');
+      return;
+    }
+
+    // Background tracking works best with Always permission
+    if (permission == LocationPermission.whileInUse) {
+       // Request Always permission for background updates
+       permission = await Geolocator.requestPermission();
+    }
+
     isLocationStreaming.value = true;
-    _locationSub = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
-      ),
-    ).listen((Position position) {
-      // Update location for all active out_for_delivery orders
-      for (var order in assignedOrders.where((o) => o.status == 'out_for_delivery')) {
-        _deliveryService.updateLocation(
-          order.id,
-          position.latitude,
-          position.longitude,
-        );
-      }
-    });
+    await LocationService.startTracking(partnerId);
   }
 
-  void _stopLocationStreaming() {
-    _locationSub?.cancel();
+  void _stopLocationTracking() async {
+    await LocationService.stopTracking();
     isLocationStreaming.value = false;
   }
 }

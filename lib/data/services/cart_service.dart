@@ -24,12 +24,13 @@ class CartService {
           .get();
 
       if (existingItems.docs.isNotEmpty) {
-        // Item exists - update quantity
+        // Item exists - update quantity and timestamp
         final doc = existingItems.docs.first;
         final data = doc.data() as Map<String, dynamic>?;
         final currentQuantity = (data?['quantity'] as int?) ?? 0;
         await doc.reference.update({
           'quantity': currentQuantity + quantity,
+          'addedAt': FieldValue.serverTimestamp(), // Update timestamp to bring to top
         });
       } else {
         // Add new item

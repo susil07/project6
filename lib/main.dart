@@ -9,11 +9,13 @@ import 'package:tasty_go/presentation/navigation/app_routes.dart';
 import 'package:tasty_go/presentation/controllers/theme_controller.dart';
 import 'package:tasty_go/presentation/controllers/initial_binding.dart';
 import 'package:tasty_go/presentation/controllers/cart_binding.dart';
+import 'package:tasty_go/data/services/location_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+  // LocationService.initializeService() moved to startTracking to avoid crash on startup
   Get.put(ThemeController());
   
   // Initialize Firebase

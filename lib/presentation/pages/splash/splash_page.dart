@@ -41,6 +41,31 @@ class SplashPage extends GetView<SplashController> {
                 letterSpacing: 1.2,
               ),
             ),
+            SizedBox(height: 16.h),
+            Obx(() {
+              if (controller.statusMessage.value.isEmpty) return const SizedBox.shrink();
+              return Column(
+                children: [
+                   SizedBox(
+                    width: 20.w, 
+                    height: 20.w, 
+                    child: const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      strokeWidth: 2,
+                    )
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    controller.statusMessage.value,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              );
+            }),
           ],
         ),
       ),

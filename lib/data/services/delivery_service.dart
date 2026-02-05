@@ -21,7 +21,7 @@ class DeliveryService {
   Stream<List<FoodOrder>> getAvailableOrders() {
     return _firestore
         .collection('orders')
-        .where('status', whereIn: ['confirmed', 'preparing'])
+        .where('status', whereIn: ['pending', 'confirmed', 'preparing'])
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs

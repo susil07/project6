@@ -20,4 +20,6 @@ abstract class Routes {
   static const deliveryProfile = '/delivery-profile';
   static const profile = '/profile';
   static const favorites = '/favorites';
+  static const locationPermission = '/location-permission';
+  static const addresses = '/addresses';
 }

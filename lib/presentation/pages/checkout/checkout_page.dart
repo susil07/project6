@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:tasty_go/presentation/pages/checkout/checkout_controller.dart';
+import 'package:tasty_go/presentation/pages/profile/address/address_management_page.dart';
+import 'package:tasty_go/data/models/address_model.dart';
 
 class CheckoutPage extends GetView<CheckoutController> {
   const CheckoutPage({super.key});
@@ -37,10 +39,20 @@ class CheckoutPage extends GetView<CheckoutController> {
             _buildOrderSummary(theme),
             SizedBox(height: 24.h),
 
-            // Delivery Address
-            _buildSectionTitle(theme, 'Delivery Address'),
-            SizedBox(height: 12.h),
-            _buildAddressForm(theme),
+            // Delivery Address Selector
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildSectionTitle(theme, 'Delivery Address'),
+                TextButton.icon(
+                  onPressed: () => Get.to(() => const AddressManagementPage()),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Manage'),
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            _buildAddressSelector(theme),
             SizedBox(height: 24.h),
 
             // Payment Method
@@ -89,6 +101,7 @@ class CheckoutPage extends GetView<CheckoutController> {
                           ),
                   ),
                 )),
+            SizedBox(height: 24.h + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),
@@ -104,6 +117,103 @@ class CheckoutPage extends GetView<CheckoutController> {
         color: theme.colorScheme.onSurface,
       ),
     );
+  }
+
+  Widget _buildAddressSelector(ThemeData theme) {
+    return Obx(() {
+      if (controller.isLoadingAddresses.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (controller.addresses.isEmpty) {
+        return InkWell(
+          onTap: () => Get.to(() => const AddressManagementPage()),
+          borderRadius: BorderRadius.circular(12.r),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              border: Border.all(color: theme.colorScheme.outline, style: BorderStyle.solid),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            child: Column(
+              children: [
+                Icon(Icons.add_location_alt, size: 32.sp, color: theme.colorScheme.primary),
+                SizedBox(height: 8.h),
+                const Text('Add Delivery Address'),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: controller.addresses.map((address) {
+          final isSelected = controller.selectedAddress.value?.id == address.id;
+          return Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: InkWell(
+              onTap: () => controller.selectedAddress.value = address,
+              borderRadius: BorderRadius.circular(12.r),
+              child: Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: isSelected 
+                    ? theme.colorScheme.primary.withValues(alpha: 0.1) 
+                    : theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline.withValues(alpha: 0.2),
+                    width: isSelected ? 2 : 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+                      color: isSelected ? theme.colorScheme.primary : Colors.grey,
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                address.label,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.sp,
+                                ),
+                              ),
+                              if (address.isDefault) ...[
+                                SizedBox(width: 8.w),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.secondary.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(4.r),
+                                  ),
+                                  child: Text('Default', style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold)),
+                                ),
+                              ],
+                            ],
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(address.fullAddress),
+                          Text('${address.city} - ${address.pincode}'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      );
+    });
   }
 
   Widget _buildOrderSummary(ThemeData theme) {
@@ -174,98 +284,6 @@ class CheckoutPage extends GetView<CheckoutController> {
             ],
           ),
         ));
-  }
-
-  Widget _buildAddressForm(ThemeData theme) {
-    return Column(
-      children: [
-        _buildTextField(
-          controller: controller.fullNameController,
-          label: 'Full Name',
-          hint: 'Enter your full name',
-          icon: Icons.person_outline,
-        ),
-        SizedBox(height: 16.h),
-        _buildTextField(
-          controller: controller.phoneController,
-          label: 'Phone Number',
-          hint: 'Enter 10-digit phone number',
-          icon: Icons.phone_outlined,
-          keyboardType: TextInputType.phone,
-        ),
-        SizedBox(height: 16.h),
-        _buildTextField(
-          controller: controller.addressLine1Controller,
-          label: 'Address Line 1',
-          hint: 'House/Flat No., Building Name',
-          icon: Icons.home_outlined,
-        ),
-        SizedBox(height: 16.h),
-        _buildTextField(
-          controller: controller.addressLine2Controller,
-          label: 'Address Line 2 (Optional)',
-          hint: 'Street, Area, Landmark',
-          icon: Icons.location_on_outlined,
-        ),
-        SizedBox(height: 16.h),
-        Row(
-          children: [
-            Expanded(
-              child: _buildTextField(
-                controller: controller.cityController,
-                label: 'City',
-                hint: 'City',
-                icon: Icons.location_city_outlined,
-              ),
-            ),
-            SizedBox(width: 16.w),
-            Expanded(
-              child: _buildTextField(
-                controller: controller.pincodeController,
-                label: 'Pincode',
-                hint: '6-digit pincode',
-                icon: Icons.pin_drop_outlined,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-  }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Get.theme.colorScheme.outline.withValues(alpha: 0.2),
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: Get.theme.colorScheme.primary,
-            width: 2,
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildPaymentMethods(ThemeData theme) {

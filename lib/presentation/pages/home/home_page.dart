@@ -12,6 +12,7 @@ import 'package:tasty_go/presentation/pages/profile/user_profile_page.dart';
 import 'package:tasty_go/presentation/pages/profile/user_profile_controller.dart';
 import 'package:tasty_go/presentation/pages/orders/orders_page.dart';
 import 'package:tasty_go/presentation/pages/orders/orders_controller.dart';
+import 'package:tasty_go/presentation/pages/profile/address/address_management_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -209,6 +210,39 @@ class _Header extends GetView<HomeController> {
                 builder: (context) => IconButton(
                   icon: Icon(Icons.menu, color: theme.colorScheme.onSurface),
                   onPressed: () => Scaffold.of(context).openDrawer(),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () => Get.to(() => const AddressManagementPage()),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Delivery to',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          Icon(Icons.keyboard_arrow_down, size: 16.sp, color: theme.colorScheme.primary),
+                        ],
+                      ),
+                      Obx(() => Text(
+                        controller.currentAddress.value?.label ?? 'Select Location',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )),
+                    ],
+                  ),
                 ),
               ),
               const CartIconBadge(),
@@ -414,7 +448,7 @@ class _MobileDrawer extends GetView<HomeController> {
               _showLogoutDialog(context);
             },
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 16.h + MediaQuery.of(context).padding.bottom),
         ],
       ),
     );

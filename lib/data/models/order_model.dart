@@ -28,10 +28,18 @@ class OrderItem {
   }
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
+    var rawPrice = json['price'];
+    double priceValue = 0.0;
+    if (rawPrice is num) {
+      priceValue = rawPrice.toDouble();
+    } else if (rawPrice is String) {
+      priceValue = double.tryParse(rawPrice.replaceAll(RegExp(r'[N₦,₹]'), '').trim()) ?? 0.0;
+    }
+
     return OrderItem(
       foodId: json['foodId'] ?? '',
       name: json['name'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
+      price: priceValue,
       quantity: json['quantity'] ?? 0,
       imageUrl: json['imageUrl'] ?? '',
     );
@@ -43,11 +51,17 @@ class FoodOrder {
   final String userId;
   final List<OrderItem> items;
   final String deliveryAddress;
+  final double? deliveryLatitude;
+  final double? deliveryLongitude;
   final String paymentMethod;
   final double subtotal;
   final double tax;
   final double deliveryFee;
   final double total;
+  final double? restaurantLatitude;
+  final double? restaurantLongitude;
+  final String? restaurantName;
+  final String? restaurantAddress;
   final String status; // pending, confirmed, preparing, out_for_delivery, delivered, cancelled
   final DateTime createdAt;
   final DateTime? deliveredAt;
@@ -60,11 +74,17 @@ class FoodOrder {
     required this.userId,
     required this.items,
     required this.deliveryAddress,
+    this.deliveryLatitude,
+    this.deliveryLongitude,
     required this.paymentMethod,
     required this.subtotal,
     required this.tax,
     required this.deliveryFee,
     required this.total,
+    this.restaurantLatitude,
+    this.restaurantLongitude,
+    this.restaurantName,
+    this.restaurantAddress,
     this.status = 'pending',
     required this.createdAt,
     this.deliveredAt,
@@ -91,11 +111,17 @@ class FoodOrder {
       'userId': userId,
       'items': items.map((item) => item.toJson()).toList(),
       'deliveryAddress': deliveryAddress,
+      'deliveryLatitude': deliveryLatitude,
+      'deliveryLongitude': deliveryLongitude,
       'paymentMethod': paymentMethod,
       'subtotal': subtotal,
       'tax': tax,
       'deliveryFee': deliveryFee,
       'total': total,
+      if (restaurantLatitude != null) 'restaurantLatitude': restaurantLatitude,
+      if (restaurantLongitude != null) 'restaurantLongitude': restaurantLongitude,
+      if (restaurantName != null) 'restaurantName': restaurantName,
+      if (restaurantAddress != null) 'restaurantAddress': restaurantAddress,
       'status': status,
       'createdAt': createdAt,
       if (deliveredAt != null) 'deliveredAt': deliveredAt,
@@ -114,11 +140,17 @@ class FoodOrder {
               .toList() ??
           [],
       deliveryAddress: json['deliveryAddress'] ?? '',
+      deliveryLatitude: (json['deliveryLatitude'] ?? 0).toDouble(),
+      deliveryLongitude: (json['deliveryLongitude'] ?? 0).toDouble(),
       paymentMethod: json['paymentMethod'] ?? '',
       subtotal: (json['subtotal'] ?? 0).toDouble(),
       tax: (json['tax'] ?? 0).toDouble(),
       deliveryFee: (json['deliveryFee'] ?? 0).toDouble(),
       total: (json['total'] ?? 0).toDouble(),
+      restaurantLatitude: (json['restaurantLatitude'] ?? 0).toDouble(),
+      restaurantLongitude: (json['restaurantLongitude'] ?? 0).toDouble(),
+      restaurantName: json['restaurantName'],
+      restaurantAddress: json['restaurantAddress'],
       status: json['status'] ?? 'pending',
       createdAt: (json['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       deliveredAt: (json['deliveredAt'] as Timestamp?)?.toDate(),

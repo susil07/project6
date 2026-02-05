@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tasty_go/data/models/order_model.dart';
 import 'package:tasty_go/data/services/delivery_service.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:tasty_go/data/services/location_service.dart';
 
 class DeliveryActiveOrdersController extends GetxController {
   final DeliveryService _deliveryService = DeliveryService();
@@ -38,8 +40,27 @@ class DeliveryActiveOrdersController extends GetxController {
 
   Future<void> updateStatus(String orderId, String status) async {
     try {
+      if (status == 'out_for_delivery') {
+        // Force initial location update and start service
+        try {
+          final position = await Geolocator.getCurrentPosition();
+          await _deliveryService.updateLocation(
+            orderId, 
+            position.latitude, 
+            position.longitude
+          );
+          
+          final user = _auth.currentUser;
+          if (user != null) {
+            await LocationService.startTracking(user.uid);
+          }
+        } catch (e) {
+          print('Error updating initial location: $e');
+        }
+      }
+      
       await _deliveryService.updateOrderStatus(orderId, status);
-      Get.snackbar('Success', 'Order status updated to $status');
+      Get.snackbar('Status Updated', 'Order is now $status');
     } catch (e) {
       Get.snackbar('Error', 'Failed to update status: $e');
     }

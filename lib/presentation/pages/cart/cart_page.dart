@@ -304,6 +304,7 @@ class CartPage extends GetView<CartController> {
                 ),
               ),
             ),
+            SizedBox(height: 16.h + 10), // Extra safety
           ],
         ),
       ),

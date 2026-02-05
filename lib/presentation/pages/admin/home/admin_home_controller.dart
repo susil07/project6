@@ -61,6 +61,21 @@ class AdminHomeController extends GetxController {
     }
   }
 
+  Future<void> seedRestaurantData() async {
+    try {
+      await _firestore.collection('settings').doc('restaurant').set({
+        'name': 'Tasty Go - Madhapur',
+        'address': 'Madhapur, Hyderabad, Telangana',
+        'latitude': 17.448293,
+        'longitude': 78.392485,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      Get.snackbar('Success', 'Restaurant location set to Hyderabad/Madhapur');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to seed restaurant data: $e');
+    }
+  }
+
   void refreshStats() {
     _loadStats();
   }

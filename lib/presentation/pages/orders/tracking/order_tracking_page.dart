@@ -176,6 +176,87 @@ class OrderTrackingPage extends GetView<OrderTrackingController> {
                 _buildProgressBar(theme, order.status),
                 SizedBox(height: 24.h),
 
+                // Restaurant Address
+                if (order.restaurantName != null)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 24.h),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.store, color: theme.colorScheme.primary, size: 20.sp),
+                        SizedBox(width: 12.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Picking up from',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                order.restaurantName!,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                              if (order.restaurantAddress != null)
+                                Text(
+                                  order.restaurantAddress!,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Delivery Address
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.location_on, color: theme.colorScheme.primary, size: 20.sp),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Delivery Location',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            order.deliveryAddress,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24.h),
+
                 // Delivery Partner Info (Placeholder)
                 if (order.status == 'out_for_delivery')
                   Container(

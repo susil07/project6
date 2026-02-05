@@ -37,11 +37,19 @@ class CartItem {
 
   // Create from Firestore document
   factory CartItem.fromJson(String id, Map<String, dynamic> json) {
+    var rawPrice = json['price'];
+    double priceValue = 0.0;
+    if (rawPrice is num) {
+      priceValue = rawPrice.toDouble();
+    } else if (rawPrice is String) {
+      priceValue = double.tryParse(rawPrice.replaceAll(RegExp(r'[N₦,₹]'), '').trim()) ?? 0.0;
+    }
+
     return CartItem(
       id: id,
       foodId: json['foodId'] ?? '',
       name: json['name'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
+      price: priceValue,
       imageUrl: json['imageUrl'] ?? '',
       quantity: json['quantity'] ?? 1,
       specialInstructions: json['specialInstructions'],

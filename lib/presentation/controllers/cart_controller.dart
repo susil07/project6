@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tasty_go/data/models/cart_item_model.dart';
@@ -8,6 +9,9 @@ import 'package:tasty_go/data/services/cart_service.dart';
 class CartController extends GetxController {
   final CartService _cartService = CartService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  StreamSubscription? _cartSubscription;
+  StreamSubscription? _authSubscription;
 
   var cartItems = <CartItem>[].obs;
   var isLoading = false.obs;
@@ -26,17 +30,35 @@ class CartController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadCart();
-  }
-
-  void _loadCart() {
+    // Listen to auth changes to reload cart
+    _authSubscription = _auth.authStateChanges().listen((user) {
+      if (user != null) {
+        _loadCart(user.uid);
+      } else {
+        cartItems.clear();
+        _cartSubscription?.cancel();
+      }
+    });
+    
+    // Initial load if already logged in
     final user = _auth.currentUser;
     if (user != null) {
-      // Listen to cart changes in real-time
-      _cartService.getCartStream(user.uid).listen((items) {
-        cartItems.value = items;
-      });
+      _loadCart(user.uid);
     }
+  }
+
+  @override
+  void onClose() {
+    _cartSubscription?.cancel();
+    _authSubscription?.cancel();
+    super.onClose();
+  }
+
+  void _loadCart(String userId) {
+    _cartSubscription?.cancel();
+    _cartSubscription = _cartService.getCartStream(userId).listen((items) {
+      cartItems.value = items;
+    });
   }
 
   Future<void> addToCart({
