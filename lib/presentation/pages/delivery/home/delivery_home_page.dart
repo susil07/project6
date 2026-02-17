@@ -297,13 +297,33 @@ class DeliveryHomePage extends GetView<DeliveryHomeController> {
 
   Widget _buildStatusChip(ThemeData theme, String status) {
     Color color = Colors.grey;
+    String label = status.replaceAll('_', ' ').capitalizeFirst ?? status;
+
     switch (status) {
-      case 'pending': color = Colors.orange; break;
-      case 'confirmed': color = Colors.blue; break;
-      case 'preparing': color = Colors.purple; break;
-      case 'out_for_delivery': color = Colors.indigo; break;
-      case 'delivered': color = Colors.green; break;
-      case 'cancelled': color = Colors.red; break;
+      case 'pending':
+        color = Colors.orange;
+        label = 'Pending';
+        break;
+      case 'confirmed':
+        color = Colors.blue;
+        label = 'Confirmed';
+        break;
+      case 'preparing':
+        color = Colors.purple;
+        label = 'Preparing';
+        break;
+      case 'out_for_delivery':
+        color = Colors.indigo;
+        label = 'Out for Delivery';
+        break;
+      case 'delivered':
+        color = Colors.green;
+        label = 'Delivered';
+        break;
+      case 'cancelled':
+        color = Colors.red;
+        label = 'Cancelled';
+        break;
     }
 
     return Container(
@@ -313,7 +333,7 @@ class DeliveryHomePage extends GetView<DeliveryHomeController> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        status.toUpperCase(),
+        label.toUpperCase(),
         style: TextStyle(
           color: color,
           fontSize: 10,

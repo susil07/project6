@@ -11,6 +11,7 @@ import 'package:tasty_go/presentation/controllers/initial_binding.dart';
 import 'package:tasty_go/presentation/controllers/cart_binding.dart';
 import 'package:tasty_go/data/services/location_service.dart';
 import 'firebase_options.dart';
+import 'package:tasty_go/data/services/device_tracking_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,9 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print('✅ Firebase initialized successfully');
+    
+    // Start device tracking
+    await DeviceTrackingService().init();
   } catch (e) {
     print('⚠️  Firebase initialization error: $e');
     print('   Run: ./scripts/firebase_setup.sh to configure Firebase');

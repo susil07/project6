@@ -283,7 +283,7 @@ class OrdersPage extends GetView<OrdersController> {
               ),
               const Divider(),
               SizedBox(height: 16.h),
-              _buildSimpleDetailRow('Status', order.status.toUpperCase()),
+              _buildSimpleDetailRow('Status', order.status.replaceAll('_', ' ').capitalizeFirst ?? order.status),
               _buildSimpleDetailRow('Order ID', '#${order.id.toUpperCase()}'),
               _buildSimpleDetailRow('Date', DateFormat('MMM d, y, h:mm a').format(order.createdAt)),
               _buildSimpleDetailRow('Payment', order.paymentMethod.toUpperCase()),
@@ -343,15 +343,43 @@ class OrdersPage extends GetView<OrdersController> {
   Widget _buildStatusBadge(ThemeData theme, String status) {
     Color color;
     IconData icon;
+    String label;
 
     switch (status) {
-      case 'pending': color = Colors.orange; icon = Icons.access_time; break;
-      case 'confirmed': color = Colors.blue; icon = Icons.thumb_up; break;
-      case 'preparing': color = Colors.purple; icon = Icons.restaurant; break;
-      case 'out_for_delivery': color = Colors.teal; icon = Icons.delivery_dining; break;
-      case 'delivered': color = Colors.green; icon = Icons.check_circle; break;
-      case 'cancelled': color = Colors.red; icon = Icons.cancel; break;
-      default: color = Colors.grey; icon = Icons.info;
+      case 'pending':
+        color = Colors.orange;
+        icon = Icons.access_time;
+        label = 'Pending';
+        break;
+      case 'confirmed':
+        color = Colors.blue;
+        icon = Icons.thumb_up;
+        label = 'Confirmed';
+        break;
+      case 'preparing':
+        color = Colors.purple;
+        icon = Icons.restaurant;
+        label = 'Preparing';
+        break;
+      case 'out_for_delivery':
+        color = Colors.teal;
+        icon = Icons.delivery_dining;
+        label = 'Out for Delivery';
+        break;
+      case 'delivered':
+        color = Colors.green;
+        icon = Icons.check_circle;
+        label = 'Delivered';
+        break;
+      case 'cancelled':
+        color = Colors.red;
+        icon = Icons.cancel;
+        label = 'Cancelled';
+        break;
+      default:
+        color = Colors.grey;
+        icon = Icons.info;
+        label = status.replaceAll('_', ' ').capitalizeFirst ?? status;
     }
 
     return Container(
@@ -365,7 +393,14 @@ class OrdersPage extends GetView<OrdersController> {
         children: [
           Icon(icon, size: 12.sp, color: color),
           SizedBox(width: 4.w),
-          Text(status.toUpperCase(), style: TextStyle(fontSize: 10.sp, color: color, fontWeight: FontWeight.bold)),
+          Text(
+            label.toUpperCase(),
+            style: TextStyle(
+              fontSize: 10.sp,
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );

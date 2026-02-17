@@ -153,18 +153,32 @@ class DeliveryActiveOrdersPage extends GetView<DeliveryActiveOrdersController> {
 
   Widget _buildStatusBadge(ThemeData theme, String status) {
     Color color;
+    String label;
+    
     switch (status) {
       case 'out_for_delivery':
         color = Colors.blue;
+        label = 'Out for Delivery';
         break;
       case 'preparing':
         color = Colors.orange;
+        label = 'Preparing';
         break;
       case 'confirmed':
         color = Colors.green;
+        label = 'Confirmed';
+        break;
+      case 'delivered':
+        color = Colors.green;
+        label = 'Delivered';
+        break;
+      case 'cancelled':
+        color = Colors.red;
+        label = 'Cancelled';
         break;
       default:
         color = Colors.grey;
+        label = status.replaceAll('_', ' ').capitalizeFirst ?? status;
     }
 
     return Container(
@@ -174,7 +188,7 @@ class DeliveryActiveOrdersPage extends GetView<DeliveryActiveOrdersController> {
         borderRadius: BorderRadius.circular(12.r),
       ),
       child: Text(
-        status.toUpperCase(),
+        label.toUpperCase(),
         style: TextStyle(
           fontSize: 10.sp,
           color: color,
